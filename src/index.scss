@@ -1,7 +1,35 @@
-body {
-  position: absolute;
+@font-face {
+  font-family: 'Astronaut-III';
+  src: url('./font/astronaut-webfont.woff') format('woff'),
+  url('./font/astronaut-webfont.woff2') format('woff2'),
+  url('./font/astronaut-webfont.svg#Astronaut-III') format('svg'),
+  url('./font/astronaut-webfont.eot'),
+  url('./font/astronaut-webfont.eot?#iefix') format('embedded-opentype');
+}
+
+%full {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+}
+
+html {
+  @extend %full;
+}
+
+body {
+  @extend %full;
   background-color: hsl(190, 100, 90);
+
+  #container {
+    @extend %full;
+    position: relative;
+  }
+
+  #preloader {
+    @extend %full;
+    top: 0;
+    left: 0;
+    position: absolute;
+    overflow: hidden;
+  }
 }

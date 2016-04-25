@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Emitter from './Emitter.js';
+import Emitter from './tetris/Emitter.js';
 import Slash   from './geometry/Slash.js';
 
 import styles from './main.scss';
@@ -27,9 +27,16 @@ export default class Main extends Component {
     });
   }
 
-  componentDidMount() {
+  componentWillMount() {
     window.addEventListener('resize', this.handleResize.bind(this));
+  }
+
+  componentDidMount() {
     this.animate();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize.bind(this));
   }
 
   animate() {
@@ -39,10 +46,6 @@ export default class Main extends Component {
       });
       setTimeout(this.animate.bind(this), 10);
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize.bind(this));
   }
 
   render() {
@@ -55,31 +58,45 @@ export default class Main extends Component {
 
     return (
       <div className={styles.main} style={{backgroundOpacity: bgFadeIn}}>
-
-        <Emitter className={styles.emitterA}
-                 colour="#D0F5AB"
-                 title="Blog"
-                 isYnotX={false}
+        <div className={styles.landing}>
+          <Slash className={styles.slash}
+                 colour="white"
                  size={size}
-                 offset={lineWidth/2}
-                 opacity={emitterFadeIn}
-        />
+                 lineWidth={lineWidth}
+                 progress={lineProgress}
+          />
 
-        <Emitter className={styles.emitterB}
-                 colour="#ABC4F5"
-                 title="Folio"
-                 isYnotX={true}
-                 size={size}
-                 offset={lineWidth/2}
-                 opacity={emitterFadeIn}
-        />
+          <Emitter className={styles.emitterA}
+                   label="Blog"
+                   href="javascript:console.log('Blog')"
+                   colour="#D0F5AB"
+                   isYnotX={false}
+                   size={size}
+                   offset={lineWidth/2}
+                   opacity={emitterFadeIn}
+          />
 
-        <Slash className={styles.slash} {...this.props}
-               colour="white"
-               size={size}
-               lineWidth={lineWidth}
-               progress={lineProgress}
-        />
+          <Emitter className={styles.emitterB}
+                   label="Work"
+                   href="javascript:console.log('Work')"
+                   colour="#ABC4F5"
+                   isYnotX={true}
+                   size={size}
+                   offset={lineWidth/2}
+                   opacity={emitterFadeIn}
+          />
+        </div>
+
+        <div className={styles.contentX}>
+          The quick brown fox
+        </div>
+        <div className={styles.contentX}>
+          The quick brown fox
+        </div>
+        <div className={styles.contentX}>
+          The quick brown fox
+        </div>
+
       </div>
     );
   }

@@ -1,0 +1,39 @@
+
+.main {
+  pointer-events: none;
+  overflow: hidden;
+
+  svg {
+    pointer-events: none;
+
+    path {
+      pointer-events: visiblefill;
+      cursor: pointer;
+    }
+  }
+}
+
+%label {
+  position: absolute;
+  display: block;
+  margin: 0;
+  color: white;
+  font-family: 'Astronaut-III', monospace;
+  font-size: 8em;
+  font-weight: bold;
+  text-shadow: 0 0 5px black;
+  user-select: none;
+  text-decoration: none;
+}
+
+.labelX {
+  @extend %label;
+  left: 15%;
+  bottom: 15%;
+}
+
+.labelY {
+  @extend %label;
+  right: 15%;
+  top: 15%;
+}

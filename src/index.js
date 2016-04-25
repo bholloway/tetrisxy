@@ -1,7 +1,7 @@
-import preloader from './preloader';
+import preloader from './preloader/preloader';
 
-import 'normalize.css';
-import './index.scss';
+import '!style!css!normalize.css';
+import '!style!css!sass!./index.scss';
 
 preloader('//localhost.charlesproxy.com:3000/main.js', false)  // TODO remove proxy address
   .then(() => {

@@ -1,0 +1,18 @@
+
+.progress {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  margin-top: -3em;
+  height: 6rem;
+  text-align: center;
+}
+
+.digit {
+  font-family: 'Astronaut-III', monospace;
+  display: inline-block;
+  width: 3rem;
+  font-size: 6rem;
+  line-height: 6rem;
+  color: hsl(190, 100, 90);
+}

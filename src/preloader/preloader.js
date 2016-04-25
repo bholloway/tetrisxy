@@ -1,6 +1,6 @@
 import Q from 'q';
 
-import xhrScript from './net/xhr-script';
+import xhrScript from '../net/xhr-script';
 
 import styles from './preloader.scss';
 
@@ -24,7 +24,6 @@ export default function preloader(url, isDisabled) {
         displayed = 0.0,
         time      = NaN;
 
-    preloader.setAttribute('class', styles.main);
     preloader.querySelector('.progress').setAttribute('class', styles.progress);
     digit0.setAttribute('class', styles.digit);
     digit1.setAttribute('class', styles.digit);
@@ -57,7 +56,7 @@ export default function preloader(url, isDisabled) {
         error    = setPoint - displayed;
 
     // tween incomplete implies render
-    if ((setPoint < 1) || (error > PRECISION)) {
+    if ((setPoint < 0.8) || (error > PRECISION)) {
 
       // get a time delta to implement a maximum rate on the tween
       let dTime = isNaN(time) ? 0.0 : isNaN(timestamp) ? 0.0 : (timestamp - time) / 1000;
@@ -91,8 +90,8 @@ export default function preloader(url, isDisabled) {
     }
     // complete implies cleanup
     else {
-      preloader.parentNode.removeChild(preloader);
-      preloader = svg = circle = undefined;
+      //preloader.parentNode.removeChild(preloader);
+      //preloader = svg = circle = undefined;
     }
   }
 }
