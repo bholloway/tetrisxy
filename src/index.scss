@@ -14,11 +14,13 @@
 
 html {
   @extend %full;
+  background-color: white;
 }
 
 body {
   @extend %full;
   background-color: hsl(190, 100, 90);
+  visibility: hidden;
 
   #container {
     @extend %full;

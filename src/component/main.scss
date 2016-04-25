@@ -19,13 +19,15 @@
   overflow: hidden;
 }
 
-.slash,
-.emitterA {
+.emitterA,
+.emitterB {
   @extend %full;
+  top: 0;
+  left: 0;
   position: absolute;
 }
 
-.emitterB {
+.slash {
   @extend %full;
 }
 

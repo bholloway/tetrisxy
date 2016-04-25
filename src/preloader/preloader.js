@@ -15,7 +15,8 @@ export default function preloader(url, isDisabled) {
   }
   // perform XHR script load
   else {
-    var preloader = document.querySelector('#preloader'),
+    var body      = document.querySelector('body'),
+        preloader = body.querySelector('#preloader'),
         svg       = preloader.querySelector('svg'),
         circle    = svg.querySelector('circle'),
         digit0    = preloader.querySelector('.digit.lsd'),
@@ -56,7 +57,7 @@ export default function preloader(url, isDisabled) {
         error    = setPoint - displayed;
 
     // tween incomplete implies render
-    if ((setPoint < 0.8) || (error > PRECISION)) {
+    if ((setPoint < 1.0) || (error > PRECISION)) {
 
       // get a time delta to implement a maximum rate on the tween
       let dTime = isNaN(time) ? 0.0 : isNaN(timestamp) ? 0.0 : (timestamp - time) / 1000;
@@ -64,6 +65,9 @@ export default function preloader(url, isDisabled) {
 
       // only on valid time elapsed
       if (dTime) {
+
+        // show the body
+        body.setAttribute('style', 'visibility:visible');
 
         // limit fraction change based on maximum rate
         let maxSlew = 1 / MINIMUM_DURATION * dTime,
@@ -90,8 +94,8 @@ export default function preloader(url, isDisabled) {
     }
     // complete implies cleanup
     else {
-      //preloader.parentNode.removeChild(preloader);
-      //preloader = svg = circle = undefined;
+      preloader.parentNode.removeChild(preloader);
+      preloader = svg = circle = undefined;
     }
   }
 }
