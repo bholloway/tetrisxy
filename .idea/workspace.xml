@@ -2,21 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cf5a21c4-7818-4bfe-bd5d-4d37bf255390" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/component/tetris/Particle.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/component/tetris/Particles.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/component/tetris/particle.scss" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/component/tetris/particles.scss" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/decorator/state.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/component/tetris/Emitter.js" afterPath="$PROJECT_DIR$/src/component/tetris/Axis.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/component/tetris/emitter.scss" afterPath="$PROJECT_DIR$/src/component/tetris/axis.scss" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/component/Main.js" afterPath="$PROJECT_DIR$/src/component/Main.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/component/geometry/Slash.js" afterPath="$PROJECT_DIR$/src/component/geometry/Slash.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/component/main.scss" afterPath="$PROJECT_DIR$/src/component/main.scss" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/index.js" afterPath="$PROJECT_DIR$/src/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/preloader/preloader.js" afterPath="$PROJECT_DIR$/src/preloader/preloader.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/svg/closed-path-data.js" afterPath="$PROJECT_DIR$/src/svg/closed-path-data.js" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/tetrisxy_node_modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/tetrisxy.iml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/watcherTasks.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
     </list>
     <ignored path="tetrisxy.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -361,7 +356,13 @@
       <option name="project" value="LOCAL" />
       <updated>1461564547705</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="progress on particles">
+      <created>1461671574885</created>
+      <option name="number" value="00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1461671574885</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -408,7 +409,8 @@
     <MESSAGE value="remove workspace file from repo" />
     <MESSAGE value="added memomisation, added dummy content" />
     <MESSAGE value="tweak styles" />
-    <option name="LAST_COMMIT_MESSAGE" value="tweak styles" />
+    <MESSAGE value="progress on particles" />
+    <option name="LAST_COMMIT_MESSAGE" value="progress on particles" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
