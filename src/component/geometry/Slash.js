@@ -9,7 +9,6 @@ import styles from './slash.scss';
 
 export default class Slash extends Component {
 
-
   @prop(types.classes)
   className;
 
@@ -82,13 +81,22 @@ export default class Slash extends Component {
           x: radius * Math.sin(angle),
           y: radius * Math.cos(angle)
         },
-        pathData = closedPathData(
-          [limits.left + delta.x, limits.top - delta.y],
-          [limits.right + delta.x, limits.bottom - delta.y],
-          [limits.right - delta.x, limits.bottom + delta.y],
-          [limits.left - delta.x, limits.top + delta.y],
-          [limits.left + delta.x, limits.top - delta.y]
-        );
+        pathData = closedPathData([{
+          x: limits.left + delta.x,
+          y: limits.top - delta.y
+        }, {
+          x: limits.right + delta.x,
+          y: limits.bottom - delta.y
+        }, {
+          x: limits.right - delta.x,
+          y: limits.bottom + delta.y
+        }, {
+          x: limits.left - delta.x,
+          y: limits.top + delta.y
+        }, {
+          x: limits.left + delta.x,
+          y: limits.top - delta.y
+        }]);
 
     return {viewBox, limits, radius, pathData}
   }

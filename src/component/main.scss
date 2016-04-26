@@ -7,6 +7,10 @@
   @extend %full;
   position: relative;
 
+  > div {
+    float: left;
+  }
+
   &:last-child:after {
     content: '';
     float: none;
@@ -14,24 +18,19 @@
   }
 }
 
-.landing {
+.tetris {
   @extend %full;
   overflow: hidden;
-}
-
-.emitterA,
-.emitterB {
-  @extend %full;
-  top: 0;
-  left: 0;
-  position: absolute;
 }
 
 .slash {
   @extend %full;
 }
 
-.contentX {
+.axisX,
+.axisY {
   @extend %full;
-  float: left;
+  top: 0;
+  left: 0;
+  position: absolute;
 }

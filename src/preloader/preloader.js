@@ -9,28 +9,26 @@ export default function preloader(url, isDisabled) {
         MINIMUM_DURATION = 1.5,
         PRECISION        = 0.01;
 
-  // resolve immediately
+  var body      = document.querySelector('body'),
+      preloader = body.querySelector('#preloader'),
+      svg       = preloader.querySelector('svg'),
+      circle    = svg.querySelector('circle'),
+      digit0    = preloader.querySelector('.digit.lsd'),
+      digit1    = preloader.querySelector('.digit.msd'),
+      progress  = +isDisabled,
+      displayed = 0.0,
+      time      = NaN;
+
+  preloader.querySelector('.progress').setAttribute('class', styles.progress);
+  digit0.setAttribute('class', styles.digit);
+  digit1.setAttribute('class', styles.digit);
+
+  onAnimationFrame();
+
   if (isDisabled) {
     return Q.resolve();
   }
-  // perform XHR script load
   else {
-    var body      = document.querySelector('body'),
-        preloader = body.querySelector('#preloader'),
-        svg       = preloader.querySelector('svg'),
-        circle    = svg.querySelector('circle'),
-        digit0    = preloader.querySelector('.digit.lsd'),
-        digit1    = preloader.querySelector('.digit.msd'),
-        progress  = 0.0,
-        displayed = 0.0,
-        time      = NaN;
-
-    preloader.querySelector('.progress').setAttribute('class', styles.progress);
-    digit0.setAttribute('class', styles.digit);
-    digit1.setAttribute('class', styles.digit);
-
-    onAnimationFrame();
-
     return xhrScript(url)
       .progress((x) => progress = x)
       .progress(updateDigits)
@@ -86,7 +84,7 @@ export default function preloader(url, isDisabled) {
 
         // render
         svg.setAttribute('viewBox', viewBox);
-        circle.setAttribute('r', radius);
+        circle.setAttribute('r', Math.max(0, radius));
       }
 
       // call again
@@ -95,7 +93,6 @@ export default function preloader(url, isDisabled) {
     // complete implies cleanup
     else {
       preloader.parentNode.removeChild(preloader);
-      preloader = svg = circle = undefined;
     }
   }
 }

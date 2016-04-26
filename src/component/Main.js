@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Emitter from './tetris/Emitter.js';
+import Axis from './tetris/Axis.js';
 import Slash   from './geometry/Slash.js';
 
 import styles from './main.scss';
@@ -32,6 +32,7 @@ export default class Main extends Component {
   }
 
   componentDidMount() {
+    this.timestamp = NaN;
     this.animate();
   }
 
@@ -39,12 +40,20 @@ export default class Main extends Component {
     window.removeEventListener('resize', this.handleResize.bind(this));
   }
 
-  animate() {
+  animate(timestamp) {
+
+    // where progress is incomplete
     if (this.state.progress < 1.0) {
+
+      // update progress on the state
+      var dTime = (timestamp - this.timestamp) / 1000 || 0.0;
       this.setState({
-        progress: Math.min(1.0, this.state.progress + 0.005)
+        progress: Math.min(1.0, this.state.progress + dTime / 3)
       });
-      setTimeout(this.animate.bind(this), 10);
+      this.timestamp = timestamp;
+
+      // call again
+      window.requestAnimationFrame(this.animate.bind(this));
     }
   }
 
@@ -58,7 +67,7 @@ export default class Main extends Component {
 
     return (
       <div className={styles.main} style={{backgroundOpacity: bgFadeIn}}>
-        <div className={styles.landing}>
+        <div className={styles.tetris}>
           <Slash className={styles.slash}
                  colour="white"
                  size={size}
@@ -66,37 +75,26 @@ export default class Main extends Component {
                  progress={lineProgress}
           />
 
-          <Emitter className={styles.emitterA}
-                   label="Blog"
-                   href="javascript:console.log('Blog')"
-                   colour="#D0F5AB"
-                   isYnotX={false}
-                   size={size}
-                   offset={lineWidth/2}
-                   opacity={emitterFadeIn}
+          <Axis className={styles.axisX}
+                label="Blog"
+                href="#blog"
+                colour="#D0F5AB"
+                isYnotX={false}
+                size={size}
+                offset={lineWidth/2}
+                opacity={emitterFadeIn}
           />
 
-          <Emitter className={styles.emitterB}
-                   label="Work"
-                   href="javascript:console.log('Work')"
-                   colour="#ABC4F5"
-                   isYnotX={true}
-                   size={size}
-                   offset={lineWidth/2}
-                   opacity={emitterFadeIn}
+          <Axis className={styles.axisY}
+                label="Work"
+                href="#work"
+                colour="#ABC4F5"
+                isYnotX={true}
+                size={size}
+                offset={lineWidth/2}
+                opacity={emitterFadeIn}
           />
         </div>
-
-        <div className={styles.contentX}>
-          The quick brown fox
-        </div>
-        <div className={styles.contentX}>
-          The quick brown fox
-        </div>
-        <div className={styles.contentX}>
-          The quick brown fox
-        </div>
-
       </div>
     );
   }

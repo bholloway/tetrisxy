@@ -23,6 +23,7 @@
     "normalize.css": "^4.1.1",
     "q": "^1.4.1",
     "react": "^0.14.6",
+    "react-addons-create-fragment": "^15.0.1",
     "react-dom": "^0.14.6"
   },
   "devDependencies": {
