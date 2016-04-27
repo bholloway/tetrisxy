@@ -39,6 +39,9 @@ export default class Particles extends Component {
   @prop(PropTypes.number, 1.0)
   rate;
 
+  @prop(PropTypes.number, 60)
+  fps;
+
   @state(NaN)
   timestamp;
 
@@ -67,27 +70,41 @@ export default class Particles extends Component {
 
       // update the state to trigger redraw
       //  add frame rate limiting for when the browser reactivates from being inactive
-      let dTime = Math.min(this.avgFrame * 5, (timestamp - this.timestamp) / 1000 || 0.0);
-      this.avgFrame = this.avgFrame * 0.9 + dTime * 0.1;
-      this.setState({timestamp});
+      let dTime = Math.min(this.avgFrame * 5, (timestamp - this.timestamp) / 1000);
 
-      // cache geometry from props
-      let geom = this.memoGeometry(this.source, this.sink, this.size);
+      // startup
+      if (isNaN(dTime)) {
 
-      // create new list
-      //  for a smooth result we need to track fractional figures
-      this.quantity = this.quantity + dTime * this.rate * RATE_MODIFIER;
-      while (this.quantity >= 1) {
-        this.create();
-        this.quantity--;
+        // set timestamp but don't trigger render
+        this.timestamp = timestamp;
       }
+      // limit the frame rate
+      else if (dTime > 1 / this.fps) {
 
-      // update each particle in proportional terms
-      //  adjust for the aspect
-      this.physics(geom, dTime);
+        // set timestampand trigger render
+        this.setState({timestamp});
 
-      // update each particle position by appluing proportional terms to geometry
-      this.resolve(geom);
+        // simply IIR filter for average frame rate
+        this.avgFrame = this.avgFrame * 0.9 + dTime * 0.1;
+
+        // cache geometry from props
+        let geom = this.memoGeometry(this.source, this.sink, this.size);
+
+        // create new list
+        //  for a smooth result we need to track fractional figures
+        this.quantity = this.quantity + dTime * this.rate * RATE_MODIFIER;
+        while (this.quantity >= 1) {
+          this.create();
+          this.quantity--;
+        }
+
+        // update each particle in proportional terms
+        //  adjust for the aspect
+        this.physics(geom, dTime);
+
+        // update each particle position by appluing proportional terms to geometry
+        this.resolve(geom);
+      }
 
       // call again
       window.requestAnimationFrame(this.animate.bind(this));
@@ -123,11 +140,32 @@ export default class Particles extends Component {
         // check which side of the hypotenuse we were on after update
         let isOutsideAfter = (position.axial > position.lateral);
 
-        // explode where we have crossed the hypotenuse
-        if (isOutsideAfter !== isOutsideBefore) {
-          this.explode(instance, geom, position);
+        // where fade-out has begun
+        if (!isNaN(data.opacity)) {
+
+          // update opacity
+          let overshoot = position.axial - position.lateral,
+              dOpacity  = -overshoot / geom.offset * dTime * geom.cosine;
+          data.opacity = Math.max(0.0, data.opacity + dOpacity);
+
+          // remove elements that have faded out
+          if (data.opacity < 0.1) {
+            this.remove(instance);
+          }
         }
-        // otherwise accelerate broken particles toward the hypotenuse
+        // where we have just crossed the hypotenuse
+        if (isOutsideAfter !== isOutsideBefore) {
+
+          // explode wher applicable
+          if (this.isExplosive) {
+            this.explode(instance, geom, position);
+          }
+          // else start fading out
+          else {
+            instance.data.opacity = 1.0;
+          }
+        }
+        // otherwise accelerate toward the attractor
         else if (attractor) {
           let acceleration = {
             lateral: this.acceleration * (attractor.lateral - position.lateral),
@@ -163,50 +201,51 @@ export default class Particles extends Component {
           position: {
             x: lateral.x + axial.x,
             y: lateral.y + axial.y
-          }
+          },
+          opacity : data.opacity || 1.0
         });
       });
   }
 
+  remove(instance) {
+    delete this.hash[instance.uid];
+  }
+
   explode(instance, geom, initialPosition) {
 
-    // always remove old particle
-    delete this.hash[instance.uid];
+    // remove old particle
+    this.remove(instance);
 
-    // where explosive
-    if (this.isExplosive) {
+    // add a spread of smaller particles (sizeIndex - 1)
+    let sizeIndex = instance.data.sizeIndex;
+    if (sizeIndex > 1) {
 
-      // add a spread of smaller particles (sizeIndex - 1)
-      let sizeIndex = instance.data.sizeIndex;
-      if (sizeIndex > 1) {
+      let offset      = Math.pow(2, sizeIndex - 2) / 2 * geom.offset,
+          coordinates = [
+            {lateral: -geom.sine, axial: +geom.cosine},
+            {lateral: -geom.sine, axial: -geom.cosine},
+            {lateral: +geom.sine, axial: +geom.cosine},
+            {lateral: +geom.sine, axial: -geom.cosine}
+          ];
 
-        let offset      = Math.pow(2, sizeIndex - 2) / 2 * geom.offset,
-            coordinates = [
-              {lateral: -geom.sine, axial: +geom.cosine},
-              {lateral: -geom.sine, axial: -geom.cosine},
-              {lateral: +geom.sine, axial: +geom.cosine},
-              {lateral: +geom.sine, axial: -geom.cosine}
-            ];
+      coordinates.forEach((coordinate) => {
 
-        coordinates.forEach((coordinate) => {
+        let speed    = this.speed * SPEED_MODIFIER,
+            position = {
+              lateral: offset * coordinate.lateral * geom.cosine + initialPosition.lateral,
+              axial  : offset * coordinate.axial * geom.sine + initialPosition.axial
+            };
 
-          let speed    = this.speed * SPEED_MODIFIER,
-              position = {
-                lateral: offset * coordinate.lateral * geom.cosine + initialPosition.lateral,
-                axial  : offset * coordinate.axial * geom.sine + initialPosition.axial
-              };
-
-          this.create({
-            sizeIndex: sizeIndex - 1,
-            attractor: Object.assign({}, position),
-            position : Object.assign({}, position),
-            velocity : {
-              lateral: speed * coordinate.lateral,
-              axial  : speed * coordinate.axial
-            }
-          });
-        })
-      }
+        this.create({
+          sizeIndex: sizeIndex - 1,
+          attractor: Object.assign({}, position),
+          position : Object.assign({}, position),
+          velocity : {
+            lateral: speed * coordinate.lateral,
+            axial  : speed * coordinate.axial
+          }
+        });
+      })
     }
   }
 
@@ -216,6 +255,7 @@ export default class Particles extends Component {
         speed = this.speed * SPEED_MODIFIER,
         data  = Object.assign({
           sizeIndex: 2 + (Math.random() < 0.5),
+          opacity  : NaN,
           attractor: null,
           position : {
             lateral: Particles.triangularDistribution(),

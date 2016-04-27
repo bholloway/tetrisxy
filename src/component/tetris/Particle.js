@@ -34,6 +34,9 @@ export default class Particle extends Component {
   @state(false)
   size;
 
+  @state(1.0)
+  opacity;
+
   componentDidMount() {
     this.memoColours = memoizee(Particle.getColours, {primitive: true, length: 1, max: 2});
     this.register(this);
@@ -67,7 +70,8 @@ export default class Particle extends Component {
         marginLeft     : `-${size / 2}px`,
         marginTop      : `-${size / 2}px`,
         backgroundColor: colours.background,
-        borderColor    : colours.border
+        borderColor    : colours.border,
+        opacity        : this.opacity
       };
 
       return (

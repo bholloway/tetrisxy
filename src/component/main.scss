@@ -6,16 +6,6 @@
 .main {
   @extend %full;
   position: relative;
-
-  > div {
-    float: left;
-  }
-
-  &:last-child:after {
-    content: '';
-    float: none;
-    clear: both;
-  }
 }
 
 .tetris {
