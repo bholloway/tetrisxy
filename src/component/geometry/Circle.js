@@ -20,7 +20,7 @@ export default class Slash extends Component {
   size;
 
   render() {
-    var scaling = 1.0 - this.progress;
+    let scaling = 1.0 - this.progress;
 
     // complete progress implies empty
     if (scaling <= 0) {
@@ -29,8 +29,11 @@ export default class Slash extends Component {
     // incomplete progress implies circle about the centroid
     //  full size should cover the viewport
     else {
-      var classNames = [styles.main].concat(this.className).filter(Boolean).join(' '),
-          centroid   = {
+      let classNames = [styles.main].concat(this.className)
+        .filter(Boolean)
+        .join(' ');
+
+      let centroid   = {
             x: this.size.x / 2,
             y: this.size.y / 2
           },

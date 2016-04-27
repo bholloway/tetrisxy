@@ -4,9 +4,9 @@ import Q from 'q';
  * http://stackoverflow.com/a/35247060
  */
 export default function xhrScript(url) {
-  var deferred = Q.defer();
+  let deferred = Q.defer(),
+      request = new XMLHttpRequest();
 
-  var request = new XMLHttpRequest();
   events(true);
   request.open('GET', url, true);
   request.overrideMimeType('application/javascript');
@@ -27,7 +27,7 @@ export default function xhrScript(url) {
       events(false);
 
       // add script before any remaining scripts so it executes next
-      var head           = document.getElementsByTagName('head')[0],
+      let head           = document.getElementsByTagName('head')[0],
           injectedScript = document.createElement('script');
       injectedScript.innerHTML = request.responseText;
       head.appendChild(injectedScript);
@@ -51,10 +51,10 @@ export default function xhrScript(url) {
   }
 
   function events(isAttach) {
-    var methodName = isAttach ? 'addEventListener' : 'removeEventListener';
-    request[methodName]("progress", onProgress);
-    request[methodName]("load", onComplete);
-    request[methodName]("error", onError);
-    request[methodName]("abort", onCancel);
+    let methodName = isAttach ? 'addEventListener' : 'removeEventListener';
+    request[methodName]('progress', onProgress);
+    request[methodName]('load', onComplete);
+    request[methodName]('error', onError);
+    request[methodName]('abort', onCancel);
   }
 }

@@ -17,7 +17,7 @@ export const colour = PropTypes.oneOfType([
 ]);
 
 export const fraction = chainableCheck((props, propName, componentName) => {
-  var value   = props[propName],
+  let value   = props[propName],
       isValid = (typeof value === 'number') && !isNaN(value) && (value >= 0.0) && (value <= 1.0);
   if (!isValid) {
     return new Error(`${propName} in ${componentName || 'ANONYMOUS'} must be fraction 0.0-1.0 but got ${value}`);

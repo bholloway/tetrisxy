@@ -9,7 +9,7 @@ export default function preloader(url, isDisabled) {
         MINIMUM_DURATION = 1.5,
         PRECISION        = 0.01;
 
-  var body      = document.querySelector('body'),
+  let body      = document.querySelector('body'),
       preloader = body.querySelector('#preloader'),
       svg       = preloader.querySelector('svg'),
       circle    = svg.querySelector('circle'),
@@ -38,7 +38,7 @@ export default function preloader(url, isDisabled) {
 
   function updateDigits(value) {
     if (value > 0) {
-      var percent = ('00' + Math.round(value * 100)).slice(-2);
+      let percent = ('00' + Math.round(value * 100)).slice(-2);
       digit1.innerHTML = percent.charAt(0);
       digit0.innerHTML = percent.charAt(1);
     }
@@ -51,7 +51,7 @@ export default function preloader(url, isDisabled) {
   }
 
   function onAnimationFrame(timestamp) {
-    var setPoint = (progress === 1.0) ? 1.0 : (1.0 - OFFSET) * progress,
+    let setPoint = (progress === 1.0) ? 1.0 : (1.0 - OFFSET) * progress,
         error    = setPoint - displayed;
 
     // tween incomplete implies render

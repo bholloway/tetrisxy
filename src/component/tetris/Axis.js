@@ -3,8 +3,9 @@ import memoizee                        from 'memoizee';
 import onecolor                        from 'onecolor';
 
 import prop           from '../../decorator/prop';
-import * as types     from '../../react/prop-types';
 import closedPathData from '../../svg/closed-path-data';
+import lengthOf       from '../../svg/length-of';
+import * as types     from '../../react/prop-types';
 
 import TriangleMask from '../container/TriangleMask';
 import Particles    from './Particles';
@@ -47,8 +48,11 @@ export default class Axis extends Component {
 
   render() {
 
-    let classNames = [styles.main].concat(this.className).filter(Boolean).join(' '),
-        geom       = this.memoGeometry(this.size, this.offset, this.isYnotX),
+    let classNames = [styles.main].concat(this.className)
+      .filter(Boolean)
+      .join(' ');
+
+    let geom       = this.memoGeometry(this.size, this.offset, this.isYnotX),
         fillColour = onecolor(this.colour).hex(),
         bgColour   = onecolor(this.colour).alpha(-0.5, true).cssa();
 
@@ -102,15 +106,8 @@ export default class Axis extends Component {
 
     return {viewBox, pathData, source, sink};
 
-    function lengthOf(points) {
-      return Math.pow(
-        Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2),
-        0.5
-      );
+    function reverse(v, i, array) {
+      return array[array.length - 1 - i];
     }
   }
-}
-
-function reverse(v, i, array) {
-  return array[array.length - 1 - i];
 }

@@ -44,8 +44,11 @@ export default class Slash extends Component {
     }
     // progress implies partial display about the centroid
     else {
-      var classNames = [styles.main].concat(this.className).filter(Boolean).join(' '),
-          geom       = this.memoGeometry(this.size.x, this.size.y, this.lineWidth, this.progress);
+      let classNames = [styles.main].concat(this.className)
+        .filter(Boolean)
+        .join(' ');
+
+      let geom = this.memoGeometry(this.size.x, this.size.y, this.lineWidth, this.progress);
 
       return (
         <svg className={classNames} style={{opacity: this.opacity}} viewBox={geom.viewBox}
@@ -64,7 +67,8 @@ export default class Slash extends Component {
   }
 
   static getGeometry(sizeX, sizeY, lineWidth, progress) {
-    var viewBox  = [0, 0, sizeX, sizeY],
+
+    let viewBox  = [0, 0, sizeX, sizeY],
         centroid = {
           x: sizeX / 2,
           y: sizeY / 2

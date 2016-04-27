@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 
-import Axis from './tetris/Axis.js';
-import Slash   from './geometry/Slash.js';
+import Axis  from './tetris/Axis';
+import Slash from './geometry/Slash';
+import FPS   from './debug/FPS';
 
 import styles from './main.scss';
 
@@ -40,25 +41,9 @@ export default class Main extends Component {
     window.removeEventListener('resize', this.handleResize.bind(this));
   }
 
-  animate(timestamp) {
-
-    // where progress is incomplete
-    if (this.state.progress < 1.0) {
-
-      // update progress on the state
-      var dTime = (timestamp - this.timestamp) / 1000 || 0.0;
-      this.setState({
-        progress: Math.min(1.0, this.state.progress + dTime / 3)
-      });
-      this.timestamp = timestamp;
-
-      // call again
-      window.requestAnimationFrame(this.animate.bind(this));
-    }
-  }
-
   render() {
-    var size          = this.state.size,
+
+    let size          = this.state.size,
         diagonal      = Math.pow(Math.pow(size.x, 2) + Math.pow(size.y, 2), 0.5),
         lineWidth     = Math.max(4, diagonal * 0.01),
         bgFadeIn      = Math.min(1.0, this.state.progress * 4),
@@ -68,6 +53,7 @@ export default class Main extends Component {
     return (
       <div className={styles.main} style={{backgroundOpacity: bgFadeIn}}>
         <div className={styles.tetris}>
+
           <Slash className={styles.slash}
                  colour="white"
                  size={size}
@@ -94,8 +80,28 @@ export default class Main extends Component {
                 offset={lineWidth/2}
                 opacity={emitterFadeIn}
           />
+
+          <FPS initial={60}/>
+
         </div>
       </div>
     );
+  }
+
+  animate(timestamp) {
+
+    // where progress is incomplete
+    if (this.state.progress < 1.0) {
+
+      // update progress on the state
+      let dTime = (timestamp - this.timestamp) / 1000 || 0.0;
+      this.setState({
+        progress: Math.min(1.0, this.state.progress + dTime / 3)
+      });
+      this.timestamp = timestamp;
+
+      // call again
+      window.requestAnimationFrame(this.animate.bind(this));
+    }
   }
 }

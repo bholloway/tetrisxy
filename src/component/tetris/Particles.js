@@ -65,6 +65,14 @@ export default class Particles extends Component {
     this.hash = this.list = undefined;
   }
 
+  render() {
+    return (
+      <div className={styles.main}>
+        {createFragment(this.hash)}
+      </div>
+    );
+  }
+
   animate(timestamp) {
 
     // until unmounted
@@ -83,7 +91,7 @@ export default class Particles extends Component {
       // limit the frame rate
       else if (dTime > 1 / this.fps) {
 
-        // set timestampand trigger render
+        // set timestamp to trigger render
         this.setState({timestamp});
 
         // simply IIR filter for average frame rate
@@ -113,17 +121,44 @@ export default class Particles extends Component {
     }
   }
 
-  render() {
-    return (
-      <div className={styles.main}>
-        {createFragment(this.hash)}
-      </div>
+  create(initialConditions) {
+
+    let key   = `particle${this.nextKey++}`,
+        speed = this.speed * SPEED_MODIFIER,
+        data  = Object.assign({
+          sizeIndex: 2 + (Math.random() < 0.5),
+          opacity  : NaN,
+          attractor: null,
+          position : {
+            lateral: Particles.triangularDistribution(),
+            axial  : 0.0
+          },
+          velocity : {
+            lateral: 0.0,
+            axial  : speed
+          }
+        }, initialConditions);
+
+    const register = (instance) => {
+      instance.data = data;
+      this.list.push(instance);
+    };
+
+    const unregister = (instance) => {
+      let index = this.list.indexOf(instance);
+      this.list.splice(index, 1);
+    };
+
+    // create particle
+    this.hash[key] = (
+      <Particle uid={key} className={`size${data.sizeIndex}`} colour={this.colour} isExplosive={this.isExplosive}
+                register={register} unregister={unregister}/>
     );
   }
 
   physics(geom, dTime) {
 
-    // loop invariant to allow deletions at cursor and additions to tail
+    // loop inletiant to allow deletions at cursor and additions to tail
     this.list
       .reduceRight((reduced, instance) => {
 
@@ -181,7 +216,7 @@ export default class Particles extends Component {
 
   resolve(geom) {
 
-    // doesn't need to be loop invariant as there are no mutations
+    // doesn't need to be loop inletiant as there are no mutations
     this.list
       .forEach((instance) => {
 
@@ -249,41 +284,6 @@ export default class Particles extends Component {
         });
       })
     }
-  }
-
-  create(initialConditions) {
-
-    let key   = `particle${this.nextKey++}`,
-        speed = this.speed * SPEED_MODIFIER,
-        data  = Object.assign({
-          sizeIndex: 2 + (Math.random() < 0.5),
-          opacity  : NaN,
-          attractor: null,
-          position : {
-            lateral: Particles.triangularDistribution(),
-            axial  : 0.0
-          },
-          velocity : {
-            lateral: 0.0,
-            axial  : speed
-          }
-        }, initialConditions);
-
-    const register = (instance) => {
-      instance.data = data;
-      this.list.push(instance);
-    };
-
-    const unregister = (instance) => {
-      let index = this.list.indexOf(instance);
-      this.list.splice(index, 1);
-    };
-
-    // create particle
-    this.hash[key] = (
-      <Particle uid={key} className={`size${data.sizeIndex}`} colour={this.colour} isExplosive={this.isExplosive}
-                register={register} unregister={unregister}/>
-    );
   }
 
   static triangularDistribution() {

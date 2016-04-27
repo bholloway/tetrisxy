@@ -52,15 +52,15 @@ export default class Particle extends Component {
     // where animating
     if (this.position && this.size) {
 
+      let classNames = [styles.main].concat(this.className).concat(this.isExplosive && styles.explosive)
+        .filter(Boolean)
+        .join(' ');
+
       let colours = this.memoColours(this.colour);
 
       let state    = this.state,
           position = state.position,
           size     = state.size;
-
-      let classNames = [styles.main].concat(this.className).concat(this.isExplosive && styles.explosive)
-        .filter(Boolean)
-        .join(' ');
 
       let style = {
         left           : `${position.x}px`,
