@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component }  from 'react';
+import requestAnimationFrame from 'raf';
 
 import Axis  from './tetris/Axis';
 import Slash from './geometry/Slash';
@@ -101,7 +102,7 @@ export default class Main extends Component {
       this.timestamp = timestamp;
 
       // call again
-      window.requestAnimationFrame(this.animate.bind(this));
+      requestAnimationFrame(this.animate.bind(this));
     }
   }
 }

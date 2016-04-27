@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import memoizee                        from 'memoizee';
 import createFragment                  from 'react-addons-create-fragment';
+import requestAnimationFrame           from 'raf';
+import performanceNow                  from 'performance-now';
 
 import prop       from '../../decorator/prop';
 import state      from '../../decorator/state';
@@ -64,7 +66,7 @@ export default class Particles extends Component {
   }
 
   componentDidMount() {
-    let now = performance.now();
+    let now = performanceNow();
 
     // pre-load animation up to the current time
     this.timestamp = NaN;
@@ -106,7 +108,7 @@ export default class Particles extends Component {
       }
 
       // call again
-      window.requestAnimationFrame(this.animate.bind(this));
+      requestAnimationFrame(this.animate.bind(this));
     }
   }
 
@@ -114,7 +116,6 @@ export default class Particles extends Component {
 
     // find the time delta since the last update
     let dTime = Math.min(this.meanFramePeriod * 5, (timestamp - this.timestamp) / 1000);
-if (dTime < 0) console.log(timestamp, this.timestamp);
 
     // limit the frame rate
     var willUpdate = (dTime >= 1 / this.fps);

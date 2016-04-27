@@ -1,4 +1,5 @@
-import Q from 'q';
+import Q                     from 'q';
+import requestAnimationFrame from 'raf';
 
 import xhrScript from '../net/xhr-script';
 
@@ -88,7 +89,7 @@ export default function preloader(url, isDisabled) {
       }
 
       // call again
-      window.requestAnimationFrame(onAnimationFrame);
+      requestAnimationFrame(onAnimationFrame);
     }
     // complete implies cleanup
     else {

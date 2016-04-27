@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import requestAnimationFrame           from 'raf';
 
 import prop  from '../../decorator/prop';
 import state from '../../decorator/state';
@@ -54,7 +55,7 @@ export default class FPS extends Component {
       this.avgFrame = this.avgFrame * 0.99 + dTime * 0.01;
 
       // call again
-      window.requestAnimationFrame(this.animate.bind(this));
+      requestAnimationFrame(this.animate.bind(this));
     }
   }
 
