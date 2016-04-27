@@ -1,19 +1,17 @@
 import React, { Component, PropTypes } from 'react';
 import memoizee                        from 'memoizee';
 import onecolor                        from 'onecolor';
-import Prefixer                        from 'inline-style-prefixer';
 
 import prop           from '../../decorator/prop';
 import * as types     from '../../react/prop-types';
 import closedPathData from '../../svg/closed-path-data';
 
-import Particles from './Particles';
+import TriangleMask from '../container/TriangleMask';
+import Particles    from './Particles';
 
 import styles from './axis.scss';
 
 export default class Axis extends Component {
-
-  static prefixer = new Prefixer();
 
   @prop(types.classes)
   className;
@@ -48,6 +46,7 @@ export default class Axis extends Component {
   }
 
   render() {
+
     let classNames = [styles.main].concat(this.className).filter(Boolean).join(' '),
         geom       = this.memoGeometry(this.size, this.offset, this.isYnotX),
         fillColour = onecolor(this.colour).hex(),
@@ -60,19 +59,15 @@ export default class Axis extends Component {
           <path className={styles.path} fill={fillColour} d={geom.pathData}/>
         </svg>
 
-        <div className={styles.mask} style={geom.transformOuter}>
-          <div className={styles.mask} style={geom.transformInner}>
-
-            <Particles className={styles.particles} colour={bgColour} size={0.05} speed={0.3} rate={0.2}
-                       isExplosive={false} fps={30} source={geom.source} sink={geom.sink}/>
-
-          </div>
-        </div>
+        <TriangleMask {...this.props}>
+          <Particles className={styles.particles} colour={bgColour} size={0.05} speed={0.3} rate={0.15}
+                     isExplosive={false} fps={30} source={geom.source} sink={geom.sink}/>
+        </TriangleMask>
 
         <a className={styles[`label${this.isYnotX ? 'Y' : 'X'}`]} href={this.href}>{this.label}</a>
 
-        <Particles className={styles.particles} colour={this.colour} size={0.012} speed={1.0} rate={0.4}
-                   isExplosive={true} source={geom.source} sink={geom.sink}/>
+        <Particles className={styles.particles} colour={this.colour} size={0.012} speed={1.0} rate={0.2}
+                   isExplosive={true} fps={80} source={geom.source} sink={geom.sink}/>
       </div>
     );
   }
@@ -105,27 +100,7 @@ export default class Axis extends Component {
     let viewBox  = [0, 0, size.x, size.y],
         pathData = closedPathData(source.concat(sink.map(reverse)));
 
-    // creat transforms for the clipping rectangles
-    let hypotenuse     = lengthOf(sink) + offset,
-        transformOuter = Axis.prefixer.prefix({
-          width          : hypotenuse,
-          top            : isYnotX ? 0 : `${offset}px`,
-          bottom         : isYnotX ? `${offset}px` : 0,
-          left           : isYnotX ? undefined : 0,
-          right          : isYnotX ? 0 : undefined,
-          transform      : `rotate(${radians}rad)`,
-          transformOrigin: isYnotX ? `${hypotenuse}px ${size.y}px` : `0 0`
-        }),
-        transformInner = Axis.prefixer.prefix({
-          width          : `${size.x}px`,
-          height         : '100%',
-          left           : isYnotX ? undefined : 0,
-          right          : isYnotX ? 0 : undefined,
-          transform      : `rotate(-${radians}rad)`,
-          transformOrigin: isYnotX ? `${size.x}px ${size.y}px` : `0 0`
-        });
-
-    return {viewBox, pathData, source, sink, transformOuter, transformInner};
+    return {viewBox, pathData, source, sink};
 
     function lengthOf(points) {
       return Math.pow(

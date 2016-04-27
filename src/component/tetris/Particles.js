@@ -4,14 +4,16 @@ import createFragment                  from 'react-addons-create-fragment';
 
 import prop       from '../../decorator/prop';
 import state      from '../../decorator/state';
+import lengthOf   from '../../svg/length-of';
 import * as types from '../../react/prop-types';
 
 import Particle from './Particle';
 
 import styles from './particles.scss';
 
-const SPEED_MODIFIER = 0.1,
-      RATE_MODIFIER  = 1.0;
+const SPEED_MODIFIER        = 0.1,
+      RATE_MODIFIER         = 1.0,
+      ACCELERATION_MODIFIER = 3.0;
 
 export default class Particles extends Component {
 
@@ -33,7 +35,7 @@ export default class Particles extends Component {
   @prop(PropTypes.number, 1.0)
   speed;
 
-  @prop(PropTypes.number, 2.0)
+  @prop(PropTypes.number, 1.0)
   acceleration;
 
   @prop(PropTypes.number, 1.0)
@@ -168,8 +170,8 @@ export default class Particles extends Component {
         // otherwise accelerate toward the attractor
         else if (attractor) {
           let acceleration = {
-            lateral: this.acceleration * (attractor.lateral - position.lateral),
-            axial  : this.acceleration * (attractor.axial - position.axial)
+            lateral: this.acceleration * ACCELERATION_MODIFIER * (attractor.lateral - position.lateral),
+            axial  : this.acceleration * ACCELERATION_MODIFIER * (attractor.axial - position.axial)
           };
           velocity.lateral += acceleration.lateral * dTime * geom.sine;
           velocity.axial += acceleration.axial * dTime * geom.cosine;
@@ -306,12 +308,5 @@ export default class Particles extends Component {
       offset,
       length: {hypotenuse, lateral, axial, unit}
     };
-
-    function lengthOf(points) {
-      return Math.pow(
-        Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2),
-        0.5
-      );
-    }
   }
 }
