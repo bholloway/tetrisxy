@@ -1,26 +1,13 @@
 
 .main {
   position: absolute;
-}
-
-%particle {
+  border-radius: 25%;
   border-width: 1px;
   border-style: solid;
-  border-radius: 25%;
 }
 
-.size4 {
-  @extend %particle;
-}
-
-.size3 {
-  @extend %particle;
-}
-
-.size2 {
-  @extend %particle;
-}
-
-.size1 {
-  @extend %particle;
+.explosive {
+  border-width: 3px;
+  border-style: solid;
+  z-index: +10;
 }

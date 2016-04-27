@@ -10,7 +10,16 @@ import Particle from './Particle';
 
 import styles from './particles.scss';
 
+const SPEED_MODIFIER = 0.1,
+      RATE_MODIFIER  = 1.0;
+
 export default class Particles extends Component {
+
+  @prop(types.colour.isRequired)
+  colour;
+
+  @prop(PropTypes.bool.isRequired)
+  isExplosive;
 
   @prop(PropTypes.arrayOf(types.point).isRequired)
   source;
@@ -18,19 +27,16 @@ export default class Particles extends Component {
   @prop(PropTypes.arrayOf(types.point).isRequired)
   sink;
 
-  @prop(types.colour)
-  colour;
-
   @prop(types.fraction, 0.015)
   size;
 
-  @prop(types.fraction, 0.1)
+  @prop(PropTypes.number, 1.0)
   speed;
 
   @prop(PropTypes.number, 2.0)
   acceleration;
 
-  @prop(types.fraction, 0.5)
+  @prop(PropTypes.number, 1.0)
   rate;
 
   @state(NaN)
@@ -70,7 +76,7 @@ export default class Particles extends Component {
 
       // create new list
       //  for a smooth result we need to track fractional figures
-      this.quantity = this.quantity + dTime * this.rate;
+      this.quantity = this.quantity + dTime * this.rate * RATE_MODIFIER;
       while (this.quantity >= 1) {
         this.create();
         this.quantity--;
@@ -164,45 +170,51 @@ export default class Particles extends Component {
 
   explode(instance, geom, initialPosition) {
 
-    // remove old particle
+    // always remove old particle
     delete this.hash[instance.uid];
 
-    // add a spread of smaller particles
-    let sizeIndex = instance.data.sizeIndex;
-    if (sizeIndex > 1) {
+    // where explosive
+    if (this.isExplosive) {
 
-      let offset      = Math.pow(2, sizeIndex - 2) / 2 * geom.offset,
-          coordinates = [
-            {lateral: -geom.sine, axial: +geom.cosine},
-            {lateral: -geom.sine, axial: -geom.cosine},
-            {lateral: +geom.sine, axial: +geom.cosine},
-            {lateral: +geom.sine, axial: -geom.cosine}
-          ];
+      // add a spread of smaller particles (sizeIndex - 1)
+      let sizeIndex = instance.data.sizeIndex;
+      if (sizeIndex > 1) {
 
-      coordinates.forEach((coordinate) => {
+        let offset      = Math.pow(2, sizeIndex - 2) / 2 * geom.offset,
+            coordinates = [
+              {lateral: -geom.sine, axial: +geom.cosine},
+              {lateral: -geom.sine, axial: -geom.cosine},
+              {lateral: +geom.sine, axial: +geom.cosine},
+              {lateral: +geom.sine, axial: -geom.cosine}
+            ];
 
-        let position = {
-          lateral: offset * coordinate.lateral * geom.cosine + initialPosition.lateral,
-          axial  : offset * coordinate.axial * geom.sine + initialPosition.axial
-        };
+        coordinates.forEach((coordinate) => {
 
-        this.create({
-          sizeIndex: sizeIndex - 1,
-          attractor: Object.assign({}, position),
-          position : Object.assign({}, position),
-          velocity : {
-            lateral: this.speed * coordinate.lateral,
-            axial  : this.speed * coordinate.axial
-          }
-        });
-      })
+          let speed    = this.speed * SPEED_MODIFIER,
+              position = {
+                lateral: offset * coordinate.lateral * geom.cosine + initialPosition.lateral,
+                axial  : offset * coordinate.axial * geom.sine + initialPosition.axial
+              };
+
+          this.create({
+            sizeIndex: sizeIndex - 1,
+            attractor: Object.assign({}, position),
+            position : Object.assign({}, position),
+            velocity : {
+              lateral: speed * coordinate.lateral,
+              axial  : speed * coordinate.axial
+            }
+          });
+        })
+      }
     }
   }
 
   create(initialConditions) {
 
-    let key  = `particle${this.nextKey++}`,
-        data = Object.assign({
+    let key   = `particle${this.nextKey++}`,
+        speed = this.speed * SPEED_MODIFIER,
+        data  = Object.assign({
           sizeIndex: 2 + (Math.random() < 0.5),
           attractor: null,
           position : {
@@ -211,7 +223,7 @@ export default class Particles extends Component {
           },
           velocity : {
             lateral: 0.0,
-            axial  : this.speed
+            axial  : speed
           }
         }, initialConditions);
 
@@ -227,8 +239,8 @@ export default class Particles extends Component {
 
     // create particle
     this.hash[key] = (
-      <Particle uid={key} className={`size${data.sizeIndex}`} colour={this.colour} register={register}
-                unregister={unregister}/>
+      <Particle uid={key} className={`size${data.sizeIndex}`} colour={this.colour} isExplosive={this.isExplosive}
+                register={register} unregister={unregister}/>
     );
   }
 

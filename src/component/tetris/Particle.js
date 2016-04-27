@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import memoizee                        from 'memoizee';
 import onecolor                        from 'onecolor';
 
 import prop       from '../../decorator/prop';
@@ -24,22 +25,22 @@ export default class Particle extends Component {
   @prop(PropTypes.func.isRequired)
   unregister;
 
+  @prop(PropTypes.bool.isRequired)
+  isExplosive;
+
   @state(false)
   position;
 
   @state(false)
   size;
 
-  componentWillMount() {
-    this.borderColour = onecolor(this.colour).value(-0.05, true).hex();
-    this.backgroundColour = onecolor(this.colour).value(+0.2, true).alpha(0.5).hex();
-  }
-
   componentDidMount() {
+    this.memoColours = memoizee(Particle.getColours, {primitive: true, length: 1, max: 2});
     this.register(this);
   }
 
   componentWillUnmount() {
+    this.memoColours.clear();
     this.unregister(this);
   }
 
@@ -48,17 +49,26 @@ export default class Particle extends Component {
     // where animating
     if (this.position && this.size) {
 
-      let classNames = [styles.main].concat(styles[this.className]).filter(Boolean).join(' '),
-          style      = {
-            left           : `${this.state.position.x}px`,
-            top            : `${this.state.position.y}px`,
-            width          : `${this.state.size}px`,
-            height         : `${this.state.size}px`,
-            marginLeft     : `-${this.state.size / 2}px`,
-            marginTop      : `-${this.state.size / 2}px`,
-            backgroundColor: this.backgroundColour,
-            borderColor    : this.borderColour
-          };
+      let colours = this.memoColours(this.colour);
+
+      let state    = this.state,
+          position = state.position,
+          size     = state.size;
+
+      let classNames = [styles.main].concat(this.className).concat(this.isExplosive && styles.explosive)
+        .filter(Boolean)
+        .join(' ');
+
+      let style = {
+        left           : `${position.x}px`,
+        top            : `${position.y}px`,
+        width          : `${size}px`,
+        height         : `${size}px`,
+        marginLeft     : `-${size / 2}px`,
+        marginTop      : `-${size / 2}px`,
+        backgroundColor: colours.background,
+        borderColor    : colours.border
+      };
 
       return (
         <div className={classNames} style={style}></div>
@@ -68,5 +78,12 @@ export default class Particle extends Component {
     else {
       return <div></div>;
     }
+  }
+
+  static getColours(colour) {
+    let border     = onecolor(colour).value(-0.15, true).cssa(),
+        background = onecolor(colour).value(+0.15, true).alpha(-0.2, true).cssa();
+
+    return {border, background};
   }
 }

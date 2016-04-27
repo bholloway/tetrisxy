@@ -46,18 +46,23 @@ export default class Axis extends Component {
   render() {
     let classNames = [styles.main].concat(this.className).filter(Boolean).join(' '),
         geom       = this.memoGeometry(this.size.x, this.size.y, this.offset, this.isYnotX),
-        fillColour = onecolor(this.colour).hex();
+        fillColour = onecolor(this.colour).hex(),
+        bgColour   = onecolor(this.colour).alpha(-0.5, true).cssa();
 
     return (
       <div className={classNames} style={{opacity: this.opacity}} onClick={this.onClick.bind(this)}>
-
-        <Particles className={styles.particles} colour={this.colour} source={geom.source} sink={geom.sink}/>
 
         <svg className={styles.svg} viewBox={geom.viewBox} xmlns="http://www.w3.org/2000/svg">
           <path className={styles.path} fill={fillColour} d={geom.pathData}/>
         </svg>
 
+        <Particles className={styles.particles} colour={bgColour} size={0.05} speed={0.5} rate={0.2} isExplosive={false}
+                   source={geom.source} sink={geom.sink}/>
+
         <a className={styles[`label${this.isYnotX ? 'Y' : 'X'}`]} href={this.href}>{this.label}</a>
+
+        <Particles className={styles.particles} colour={this.colour} size={0.01} speed={1.5} isExplosive={true}
+                   source={geom.source} sink={geom.sink}/>
       </div>
     );
   }
