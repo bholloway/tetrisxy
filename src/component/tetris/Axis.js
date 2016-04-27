@@ -63,7 +63,7 @@ export default class Axis extends Component {
         <div className={styles.mask} style={geom.transformOuter}>
           <div className={styles.mask} style={geom.transformInner}>
 
-            <Particles className={styles.particles} colour={bgColour} size={0.05} speed={0.4} rate={0.3}
+            <Particles className={styles.particles} colour={bgColour} size={0.05} speed={0.3} rate={0.2}
                        isExplosive={false} fps={30} source={geom.source} sink={geom.sink}/>
 
           </div>
@@ -71,7 +71,7 @@ export default class Axis extends Component {
 
         <a className={styles[`label${this.isYnotX ? 'Y' : 'X'}`]} href={this.href}>{this.label}</a>
 
-        <Particles className={styles.particles} colour={this.colour} size={0.01} speed={1.0} rate={0.5}
+        <Particles className={styles.particles} colour={this.colour} size={0.012} speed={1.0} rate={0.4}
                    isExplosive={true} source={geom.source} sink={geom.sink}/>
       </div>
     );
