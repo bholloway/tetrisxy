@@ -18,14 +18,30 @@ export default class Particles extends Component {
   @prop(PropTypes.arrayOf(types.point).isRequired)
   sink;
 
+  @prop(types.colour)
+  colour;
+
+  @prop(types.fraction, 0.015)
+  size;
+
+  @prop(types.fraction, 0.1)
+  speed;
+
+  @prop(PropTypes.number, 2.0)
+  acceleration;
+
+  @prop(types.fraction, 0.5)
+  rate;
+
   @state(NaN)
   timestamp;
 
   componentWillMount() {
-    this.memoGeometry = memoizee(Particles.getGeometry, {primitive: true, length: 2, max: 2});
+    this.memoGeometry = memoizee(Particles.getGeometry, {primitive: true, length: 3, max: 2});
     this.hash = {};
     this.list = [];
     this.nextKey = 0;
+    this.avgFrame = 0.1;
   }
 
   componentDidMount() {
@@ -44,22 +60,25 @@ export default class Particles extends Component {
     if (this.hash) {
 
       // update the state to trigger redraw
-      let dTime = (timestamp - this.timestamp) / 1000 || 0.0;
+      //  add frame rate limiting for when the browser reactivates from being inactive
+      let dTime = Math.min(this.avgFrame * 5, (timestamp - this.timestamp) / 1000 || 0.0);
+      this.avgFrame = this.avgFrame * 0.9 + dTime * 0.1;
       this.setState({timestamp});
 
       // cache geometry from props
-      let geom = this.memoGeometry(this.source, this.sink);
+      let geom = this.memoGeometry(this.source, this.sink, this.size);
 
       // create new list
       //  for a smooth result we need to track fractional figures
-      this.quantity = this.quantity + dTime * geom.density;
+      this.quantity = this.quantity + dTime * this.rate;
       while (this.quantity >= 1) {
         this.create();
         this.quantity--;
       }
 
       // update each particle in proportional terms
-      this.physics(dTime);
+      //  adjust for the aspect
+      this.physics(geom, dTime);
 
       // update each particle position by appluing proportional terms to geometry
       this.resolve(geom);
@@ -77,32 +96,39 @@ export default class Particles extends Component {
     );
   }
 
-  physics(dTime) {
+  physics(geom, dTime) {
 
     // loop invariant to allow deletions at cursor and additions to tail
     this.list
-      .reduceRight((reduced, instance, index) => {
+      .reduceRight((reduced, instance) => {
 
-        let data     = instance.data,
-            position = data.position,
-            velocity = data.velocity;
+        let data      = instance.data,
+            position  = data.position,
+            attractor = data.attractor,
+            velocity  = data.velocity;
+
+        // check which side of the hypotenuse we were on before update
+        let isOutsideBefore = (position.axial > position.lateral);
 
         // update position
-        position.medial += velocity.medial * dTime;
-        position.lateral += velocity.lateral * dTime;
+        position.lateral += velocity.lateral * dTime * geom.sine;
+        position.axial += velocity.axial * dTime * geom.cosine;
 
-        // explode where overshot the triangular bound
-        //  reflect excess medial position
-        let overshoot = position.medial - position.lateral;
-        if (overshoot >= 0) {
-          this.explode(index, {
-            medial : position.medial,
-            lateral: -overshoot
-          });
+        // check which side of the hypotenuse we were on after update
+        let isOutsideAfter = (position.axial > position.lateral);
+
+        // explode where we have crossed the hypotenuse
+        if (isOutsideAfter !== isOutsideBefore) {
+          this.explode(instance, geom, position);
         }
-        // otherwise accelerate
-        else {
-          velocity.medial += Math.max(0.0, (position.lateral - 0.9) * 10);
+        // otherwise accelerate broken particles toward the hypotenuse
+        else if (attractor) {
+          let acceleration = {
+            lateral: this.acceleration * (attractor.lateral - position.lateral),
+            axial  : this.acceleration * (attractor.axial - position.axial)
+          };
+          velocity.lateral += acceleration.lateral * dTime * geom.sine;
+          velocity.axial += acceleration.axial * dTime * geom.cosine;
         }
       }, null);
   }
@@ -120,60 +146,90 @@ export default class Particles extends Component {
               x: this.source[1].x * position.lateral + this.source[0].x * (1.0 - position.lateral),
               y: this.source[1].y * position.lateral + this.source[0].y * (1.0 - position.lateral)
             },
-            medial   = {
-              x: (this.sink[0].x - this.source[0].x) * position.medial,
-              y: (this.sink[0].y - this.source[0].y) * position.medial
+            axial    = {
+              x: (this.sink[1].x - this.source[1].x) * position.axial,
+              y: (this.sink[1].y - this.source[1].y) * position.axial
             },
-            size     = data.size * geom.length / 100;
+            size     = Math.pow(2, data.sizeIndex - 1) * geom.length.unit;
 
         instance.setState({
           size    : size,
           position: {
-            x: lateral.x + medial.x,
-            y: lateral.y + medial.y
+            x: lateral.x + axial.x,
+            y: lateral.y + axial.y
           }
         });
       });
   }
 
-  explode(index, initialPosition) {
-    var instance = this.list.splice(index, 1).pop();
-    delete this.hash[instance.key];
-// TODO create additional list
+  explode(instance, geom, initialPosition) {
+
+    // remove old particle
+    delete this.hash[instance.uid];
+
+    // add a spread of smaller particles
+    let sizeIndex = instance.data.sizeIndex;
+    if (sizeIndex > 1) {
+
+      let offset      = Math.pow(2, sizeIndex - 2) / 2 * geom.offset,
+          coordinates = [
+            {lateral: -geom.sine, axial: +geom.cosine},
+            {lateral: -geom.sine, axial: -geom.cosine},
+            {lateral: +geom.sine, axial: +geom.cosine},
+            {lateral: +geom.sine, axial: -geom.cosine}
+          ];
+
+      coordinates.forEach((coordinate) => {
+
+        let position = {
+          lateral: offset * coordinate.lateral * geom.cosine + initialPosition.lateral,
+          axial  : offset * coordinate.axial * geom.sine + initialPosition.axial
+        };
+
+        this.create({
+          sizeIndex: sizeIndex - 1,
+          attractor: Object.assign({}, position),
+          position : Object.assign({}, position),
+          velocity : {
+            lateral: this.speed * coordinate.lateral,
+            axial  : this.speed * coordinate.axial
+          }
+        });
+      })
+    }
   }
 
   create(initialConditions) {
 
-    let createKey = (index) => {
-      index = index || this.nextKey++;
-      return ('________' + index.toString(32)).slice(-8);
-    };
+    let key  = `particle${this.nextKey++}`,
+        data = Object.assign({
+          sizeIndex: 2 + (Math.random() < 0.5),
+          attractor: null,
+          position : {
+            lateral: Particles.triangularDistribution(),
+            axial  : 0.0
+          },
+          velocity : {
+            lateral: 0.0,
+            axial  : this.speed
+          }
+        }, initialConditions);
 
-    let register = (instance) => {
-      instance.data = Object.assign({
-        size    : 3,
-        position: {
-          lateral: Particles.triangularDistribution(),
-          medial : 0.0
-        },
-        velocity: {
-          lateral: 0.0,
-          medial : 0.25
-        }
-      }, initialConditions);
-
+    const register = (instance) => {
+      instance.data = data;
       this.list.push(instance);
     };
 
-    let unregister = (instance) => {
-      var index = this.list.indexOf(instance);
+    const unregister = (instance) => {
+      let index = this.list.indexOf(instance);
       this.list.splice(index, 1);
     };
 
-    let key       = createKey(),
-        component = (<Particle key={key} colour="red" register={register} unregister={unregister} opacity={0.5}/>);
-
-    this.hash[key] = component;
+    // create particle
+    this.hash[key] = (
+      <Particle uid={key} className={`size${data.sizeIndex}`} colour={this.colour} register={register}
+                unregister={unregister}/>
+    );
   }
 
   static triangularDistribution() {
@@ -183,11 +239,21 @@ export default class Particles extends Component {
     return 1.0 - Math.abs(Math.random() + Math.random() - 1.0);
   }
 
-  static getGeometry(source, sink) {
-    let length  = lengthOf(sink),
-        density = lengthOf(source) / length;
+  static getGeometry(source, sink, size) {
+    let hypotenuse = lengthOf(sink),
+        lateral    = lengthOf(source),
+        axial      = Math.pow(Math.pow(hypotenuse, 2) - Math.pow(lateral, 2), 0.5),
+        cosine     = lateral / hypotenuse,
+        sine       = axial / hypotenuse,
+        offset     = Math.min(cosine, sine) * size,
+        unit       = offset * hypotenuse;
 
-    return {density, length};
+    return {
+      cosine,
+      sine,
+      offset,
+      length: {hypotenuse, lateral, axial, unit}
+    };
 
     function lengthOf(points) {
       return Math.pow(

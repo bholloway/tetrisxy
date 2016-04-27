@@ -78,7 +78,7 @@ export default class Main extends Component {
           <Axis className={styles.axisX}
                 label="Blog"
                 href="#blog"
-                colour="#D0F5AB"
+                colour="hsv(100, 20%, 95%)"
                 isYnotX={false}
                 size={size}
                 offset={lineWidth/2}
@@ -88,7 +88,7 @@ export default class Main extends Component {
           <Axis className={styles.axisY}
                 label="Work"
                 href="#work"
-                colour="#ABC4F5"
+                colour="hsv(200, 20%, 95%)"
                 isYnotX={true}
                 size={size}
                 offset={lineWidth/2}
