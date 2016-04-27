@@ -10,9 +10,6 @@ import styles from './particle.scss';
 
 export default class Particle extends Component {
 
-  @prop(PropTypes.string.isRequired)
-  uid;
-
   @prop(types.classes)
   className;
 

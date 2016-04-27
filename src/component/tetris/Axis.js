@@ -65,13 +65,13 @@ export default class Axis extends Component {
 
         <TriangleMask {...this.props}>
           <Particles className={styles.particles} colour={bgColour} size={0.05} speed={0.3} rate={0.15}
-                     isExplosive={false} fps={30} source={geom.source} sink={geom.sink}/>
+                     isExplosive={false} fps={30} source={geom.source} sink={geom.sink} preload={30}/>
         </TriangleMask>
 
         <a className={styles[`label${this.isYnotX ? 'Y' : 'X'}`]} href={this.href}>{this.label}</a>
 
         <Particles className={styles.particles} colour={this.colour} size={0.012} speed={1.0} rate={0.2}
-                   isExplosive={true} fps={80} source={geom.source} sink={geom.sink}/>
+                   isExplosive={true} fps={60} source={geom.source} sink={geom.sink}/>
       </div>
     );
   }
