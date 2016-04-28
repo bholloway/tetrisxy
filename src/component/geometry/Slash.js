@@ -33,7 +33,6 @@ export default class Slash extends Component {
 
   componentWillUnmount() {
     this.memoGeometry.clear();
-    this.memoGeometry = undefined;
   }
 
   render() {

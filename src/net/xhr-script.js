@@ -1,6 +1,7 @@
 import Q from 'q';
 
 /**
+ * TODO cross-browser implementation
  * http://stackoverflow.com/a/35247060
  */
 export default function xhrScript(url) {

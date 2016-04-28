@@ -1,6 +1,8 @@
 import React, { Component }  from 'react';
 import requestAnimationFrame from 'raf';
 
+import state from '../decorator/state';
+
 import Axis  from './tetris/Axis';
 import Slash from './geometry/Slash';
 import FPS   from './debug/FPS';
@@ -9,16 +11,14 @@ import styles from './main.scss';
 
 export default class Main extends Component {
 
-  constructor() {
-    super();
-    this.state = {
-      progress: 0,
-      size    : {
-        x: window.innerWidth,
-        y: window.innerHeight
-      }
-    };
-  }
+  @state(0.0)
+  progress;
+
+  @state({
+    x: window.innerWidth,
+    y: window.innerHeight
+  })
+  size;
 
   handleResize() {
     this.setState({

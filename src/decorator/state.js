@@ -1,3 +1,11 @@
+/**
+ * ES7 class property decorator for React state.
+ *
+ * Call the factory with the indicated parameters to receive the decorator proper.
+ *
+ * @param {*} [initialValue] Optional initialisation for the property
+ * @returns {decorator} An ES7 class property decorator function
+ */
 export default function state(initialValue) {
 
   return function decorator(target, key) {

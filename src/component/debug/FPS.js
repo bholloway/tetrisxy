@@ -14,8 +14,6 @@ export default class FPS extends Component {
   @state(NaN)
   timestamp;
 
-  isReady = false;
-
   componentWillMount() {
     this.avgFrame = 1 / this.initial;
   }

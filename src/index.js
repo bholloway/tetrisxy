@@ -1,10 +1,13 @@
 import preloader from './preloader/preloader';
+import xhrScript from './net/xhr-script';
 
 import '!style!css!normalize.css';
 import '!style!css!sass!./index.scss';
 
-preloader('//localhost.charlesproxy.com:3000/main.js', true)  // TODO remove proxy address
+let promise = xhrScript('//localhost.charlesproxy.com:3000/main.js');  // TODO remove proxy address
+
+preloader(/*promise*/)
   .then(() => {
     require.ensure([], () => require('./main.js'), 'main')
   })
-  .catch((e) => consol.error(e));
+  .catch((e) => console.error(e));

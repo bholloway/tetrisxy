@@ -3,7 +3,7 @@ import React, { Component, PropTypes } from 'react';
 import prop  from '../../decorator/prop';
 import types from '../../react/prop-types';
 
-import styles from './circle.css';
+import styles from './circle.scss';
 
 export default class Slash extends Component {
 
