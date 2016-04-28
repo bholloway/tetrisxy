@@ -50,7 +50,7 @@ export default class Particles extends Component {
 
   componentWillMount() {
     this.nodeMap = {};
-    this.strategy = particlesStrategy(this.props, this.nodeMap, (size, props) => {
+    this.strategy = particlesStrategy(this, this.nodeMap, (size, props) => {
       return (<Particle className={`size${size}`} colour={this.colour} isExplosive={this.isExplosive} {...props}/>)
     });
   }

@@ -4,14 +4,14 @@ import memoizee from 'memoizee';
 import rampDist from '../../math/ramp-distribution';
 import lengthOf from '../../svg/length-of';
 
-const OPTION_SCALING = {
-  speed       : 0.1,
-  rate        : 1.0,
-  acceleration: 3.0
+const SCALING = {
+  SPEED       : 0.1,
+  RATE        : 1.0,
+  ACCELERATION: 3.0
 };
 
 /**
- * Create a concrete strategy for the parameters to update() and resolve() animation of particles.
+ * Create a concrete strategy for the opts to update() and resolve() animation of particles.
  *
  * @param {{isExplosive:boolean,source:Array,sink:Array,speed:number,acceleration:number,rate:number,fps:number}} opts
  * @param {object} nodes A hash that new nodes should be written to
@@ -28,10 +28,6 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
       instanceMap     = {},
       dataMap         = {};
 
-  // apply scaling to options
-  let parameters = Object.keys(opts)
-    .reduce(reduceKeysToScaledOptions, {});
-
   // strategy methods
   return {update, resolve};
 
@@ -47,7 +43,7 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
     let dTime = Math.min(meanFramePeriod * 5, (timestamp - lastTime) / 1000);
 
     // limit the frame rate
-    var willUpdate = (dTime >= 1 / parameters.fps);
+    var willUpdate = (dTime >= 1 / opts.fps);
 
     // update the timestamp on startup and on update
     if (isNaN(lastTime) || willUpdate) {
@@ -63,7 +59,7 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
       // create new list
       //  for a smooth result we need to track fractional value
       //  but obviously we can only create whole numbers
-      for (quantity += dTime * parameters.rate; quantity >= 1; quantity--) {
+      for (quantity += dTime * opts.rate * SCALING.RATE; quantity >= 1; quantity--) {
         create();
       }
 
@@ -78,7 +74,7 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
   function resolve() {
 
     // cache geometry from props
-    let geom = memoGeometry(parameters.source, parameters.sink, parameters.size);
+    let geom = memoGeometry(opts.source, opts.sink, opts.size);
 
     // process all instances that are registered
     Object.keys(instanceMap)
@@ -89,12 +85,12 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
 
         let position = data.position,
             lateral  = {
-              x: parameters.source[1].x * position.lateral + parameters.source[0].x * (1.0 - position.lateral),
-              y: parameters.source[1].y * position.lateral + parameters.source[0].y * (1.0 - position.lateral)
+              x: opts.source[1].x * position.lateral + opts.source[0].x * (1.0 - position.lateral),
+              y: opts.source[1].y * position.lateral + opts.source[0].y * (1.0 - position.lateral)
             },
             axial    = {
-              x: (parameters.sink[1].x - parameters.source[1].x) * position.axial,
-              y: (parameters.sink[1].y - parameters.source[1].y) * position.axial
+              x: (opts.sink[1].x - opts.source[1].x) * position.axial,
+              y: (opts.sink[1].y - opts.source[1].y) * position.axial
             },
             size     = Math.pow(2, data.sizeIndex - 1) * geom.length.unit;
 
@@ -124,7 +120,7 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
           },
           velocity : {
             lateral: 0.0,
-            axial  : parameters.speed
+            axial  : opts.speed * SCALING.SPEED
           }
         }, initialConditions);
 
@@ -148,7 +144,7 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
   function physics(dTime) {
 
     // cache geometry from props
-    let geom = memoGeometry(parameters.source, parameters.sink, parameters.size);
+    let geom = memoGeometry(opts.source, opts.sink, opts.size);
 
     // process all data, event if the instance is not yet registered
     Object.keys(dataMap)
@@ -186,7 +182,7 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
         if (isOutsideAfter !== isOutsideBefore) {
 
           // explode wher applicable
-          if (parameters.isExplosive) {
+          if (opts.isExplosive) {
             explode(key, geom, position);
           }
           // else start fading out
@@ -197,8 +193,8 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
         // otherwise accelerate toward the attractor
         else if (attractor) {
           let acceleration = {
-            lateral: parameters.acceleration * (attractor.lateral - position.lateral),
-            axial  : parameters.acceleration * (attractor.axial - position.axial)
+            lateral: opts.acceleration * SCALING.ACCELERATION * (attractor.lateral - position.lateral),
+            axial  : opts.acceleration * SCALING.ACCELERATION * (attractor.axial - position.axial)
           };
           velocity.lateral += acceleration.lateral * dTime * geom.sine;
           velocity.axial += acceleration.axial * dTime * geom.cosine;
@@ -240,17 +236,12 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
             attractor: Object.assign({}, position),
             position : Object.assign({}, position),
             velocity : {
-              lateral: parameters.speed * coordinate.lateral,
-              axial  : parameters.speed * coordinate.axial
+              lateral: opts.speed * SCALING.SPEED * coordinate.lateral,
+              axial  : opts.speed * SCALING.SPEED * coordinate.axial
             }
           });
         })
     }
-  }
-
-  function reduceKeysToScaledOptions(reduced, key) {
-    reduced[key] = (key in OPTION_SCALING) ? opts[key] * OPTION_SCALING[key] : opts[key];
-    return reduced;
   }
 }
 
