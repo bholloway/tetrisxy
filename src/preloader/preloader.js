@@ -27,10 +27,11 @@ const OFFSET           = 0.2,   // proportion of circle radius left when progres
  */
 export default function preloader(promise) {
 
-  let progress  = +!promise,
-      displayed = 0.0,
-      time      = NaN,
-      elements  = Object.keys(SELECTORS)
+  let progress     = +!promise,
+      displayed    = 0.0,
+      time         = NaN,
+      meanSlewRate = 1 / MINIMUM_DURATION,
+      elements     = Object.keys(SELECTORS)
         .reduce(reduceSelectorToElement.bind(SELECTORS), {});
 
   elements.progress.setAttribute('class', styles.progress);
@@ -82,10 +83,12 @@ export default function preloader(promise) {
         elements.body.setAttribute('style', 'visibility:visible');
 
         // limit fraction change based on maximum rate
-        let maxSlew = 1 / MINIMUM_DURATION * dTime,
+        //  slew rate may accelerate when complete and approaching 1.0
+        let maxSlew = Math.min(2 * meanSlewRate, 1 / MINIMUM_DURATION * dTime),
             ease    = Math.pow(error / OFFSET, 1.2),
             dTween  = Math.min(maxSlew, error * ease);
         displayed += dTween;
+        meanSlewRate = 0.95 * meanSlewRate + 0.05 * dTween;
 
         // current size
         let size     = {
