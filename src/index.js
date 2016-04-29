@@ -4,9 +4,9 @@ import xhrScript from './net/xhr-script';
 import '!style!css!normalize.css';
 import '!style!css!sass!./index.scss';
 
-let promise = xhrScript('//localhost.charlesproxy.com:3000/main.js');  // TODO remove proxy address
+//let promise = xhrScript('//localhost.charlesproxy.com:3000/main.js');  // TODO remove proxy address
 
-preloader(promise)
+preloader(/*promise*/)
   .then(() => {
     require.ensure([], () => require('./main.js'), 'main')
   })
