@@ -33,7 +33,9 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
 
   /**
    * Update the physical model by creating new particles and moving current ones.
-   * Work with proportional coordinates
+   *
+   * Finite difference method requiring the current timestamp. All co-ordinates and quantities are proportional.
+   *
    * @param timestamp
    * @returns {boolean}
    */
@@ -71,6 +73,9 @@ export default function particlesStrategy(opts, nodes, particleFactory) {
     return willUpdate;
   }
 
+  /**
+   * Resolve proportional positions to concrete co-ordinates for render of particles.
+   */
   function resolve() {
 
     // cache geometry from props
