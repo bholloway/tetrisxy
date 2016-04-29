@@ -44,12 +44,12 @@ export default class Main extends Component {
 
   render() {
 
-    let size          = this.state.size,
+    let size          = this.size,
         diagonal      = Math.pow(Math.pow(size.x, 2) + Math.pow(size.y, 2), 0.5),
         lineWidth     = Math.max(4, diagonal * 0.01),
-        bgFadeIn      = Math.min(1.0, this.state.progress * 4),
-        lineProgress  = Math.min(1.0, this.state.progress * 2),
-        emitterFadeIn = Math.max(0.0, this.state.progress * 2 - 1);
+        bgFadeIn      = Math.min(1.0, this.progress * 4),
+        lineProgress  = Math.min(1.0, this.progress * 2),
+        emitterFadeIn = Math.max(0.0, this.progress * 2 - 1);
 
     return (
       <div className={styles.main} style={{backgroundOpacity: bgFadeIn}}>
@@ -92,12 +92,12 @@ export default class Main extends Component {
   animate(timestamp) {
 
     // where progress is incomplete
-    if (this.state.progress < 1.0) {
+    if (this.progress < 1.0) {
 
       // update progress on the state
       let dTime = (timestamp - this.timestamp) / 1000 || 0.0;
       this.setState({
-        progress: Math.min(1.0, this.state.progress + dTime / 3)
+        progress: Math.min(1.0, this.progress + dTime / 3)
       });
       this.timestamp = timestamp;
 
